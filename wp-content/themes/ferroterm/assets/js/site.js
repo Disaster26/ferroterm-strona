@@ -76,6 +76,7 @@
       var dx = tor.scrollLeft - sl;
       p0 = null;
       if (ruch) {
+        tor._ciag = Date.now();
         tor.classList.remove('ciag');
         var start = Math.round(sl / tor.clientWidth);
         var cel = Math.abs(dx) > tor.clientWidth * 0.15 ? start + (dx > 0 ? 1 : -1) : start;
@@ -89,6 +90,80 @@
     window.addEventListener('resize', stan);
     stan();
   });
+
+  /* ---------- powiększenie zdjęć: klik w zdjęcie galerii lub w tekście, strzałki, gest, Esc ---------- */
+  (function () {
+    var grupy = $$('.kar-tor').concat($$('.tekst img.tekst-img'));
+    if (!grupy.length) return;
+    var ikona = function (dd) { return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + dd + '"/></svg>'; };
+    var lb = d.createElement('div');
+    lb.className = 'lb'; lb.hidden = true;
+    lb.setAttribute('role', 'dialog'); lb.setAttribute('aria-modal', 'true'); lb.setAttribute('aria-label', 'Powiększone zdjęcie');
+    lb.innerHTML = '<img class="lb-img" alt=""><p class="lb-pod"></p>'
+      + '<button class="lb-b lb-x" type="button" aria-label="Zamknij">' + ikona('M6 6l12 12M18 6L6 18') + '</button>'
+      + '<button class="lb-b lb-l" type="button" aria-label="Poprzednie zdjęcie">' + ikona('M15 6l-6 6 6 6') + '</button>'
+      + '<button class="lb-b lb-p" type="button" aria-label="Następne zdjęcie">' + ikona('M9 6l6 6-6 6') + '</button>';
+    d.body.appendChild(lb);
+    var im = $('.lb-img', lb), pod = $('.lb-pod', lb), bl = $('.lb-l', lb), bp = $('.lb-p', lb), bx = $('.lb-x', lb);
+    var lista = [], nr = 0, wrot = null;
+    var duzy = function (img) {
+      var best = img.currentSrc || img.src, w = 0;
+      (img.getAttribute('srcset') || '').split(',').forEach(function (c) {
+        var a = c.trim().split(/\s+/), ww = parseInt(a[1], 10) || 0;
+        if (a[0] && ww > w) { w = ww; best = a[0]; }
+      });
+      return best;
+    };
+    var pokaz = function () {
+      var img = lista[nr];
+      im.src = duzy(img); im.alt = img.alt || '';
+      pod.textContent = (img.alt || '') + (lista.length > 1 ? '  (' + (nr + 1) + ' / ' + lista.length + ')' : '');
+      bl.hidden = bp.hidden = lista.length < 2;
+    };
+    var otworz = function (l, i) {
+      lista = l; nr = i; wrot = d.activeElement;
+      pokaz(); lb.hidden = false; d.documentElement.style.overflow = 'hidden'; bx.focus();
+    };
+    var zamknij = function () {
+      lb.hidden = true; im.removeAttribute('src'); d.documentElement.style.overflow = '';
+      if (wrot && wrot.focus) wrot.focus();
+    };
+    var idz = function (dd) { nr = (nr + dd + lista.length) % lista.length; pokaz(); };
+    grupy.forEach(function (g) {
+      var imgs = g.tagName === 'IMG' ? [g] : $$('img', g);
+      // przy przeciąganiu myszą tor przechwytuje wskaźnik, więc klik trafia w tor, nie w zdjęcie
+      g.addEventListener('click', function () {
+        if (g._ciag && Date.now() - g._ciag < 350) return;
+        var i = g.tagName === 'IMG' ? 0 : Math.round(g.scrollLeft / g.clientWidth);
+        if (imgs[i]) otworz(imgs, i);
+      });
+      if (g.tagName !== 'IMG') g.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { var i = Math.round(g.scrollLeft / g.clientWidth); if (imgs[i]) otworz(imgs, i); }
+      });
+    });
+    bx.addEventListener('click', zamknij);
+    bl.addEventListener('click', function () { idz(-1); });
+    bp.addEventListener('click', function () { idz(1); });
+    lb.addEventListener('click', function (e) { if (e.target === lb) zamknij(); });
+    d.addEventListener('keydown', function (e) {
+      if (lb.hidden) return;
+      if (e.key === 'Escape') zamknij();
+      else if (e.key === 'ArrowRight' && lista.length > 1) idz(1);
+      else if (e.key === 'ArrowLeft' && lista.length > 1) idz(-1);
+      else if (e.key === 'Tab') {
+        var f = [bx, bl, bp].filter(function (b) { return !b.hidden; });
+        var i = f.indexOf(d.activeElement);
+        e.preventDefault(); f[(i + (e.shiftKey ? -1 : 1) + f.length) % f.length].focus();
+      }
+    });
+    var x0 = null;
+    lb.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+    lb.addEventListener('touchend', function (e) {
+      if (x0 === null || lista.length < 2) return;
+      var dx = e.changedTouches[0].clientX - x0; x0 = null;
+      if (Math.abs(dx) > 50) idz(dx < 0 ? 1 : -1);
+    }, { passive: true });
+  })();
 
   /* ---------- dolny pasek na telefonie: po przewinięciu za przycisk pierwszego ekranu, poza sekcją kontaktu ---------- */
   var pasek = $('#mob-pasek'), cta = $('#hero-cta') || $('#cta-ph') || $('.ph');

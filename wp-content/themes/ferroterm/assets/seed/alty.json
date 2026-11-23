@@ -33,5 +33,10 @@
  "obrobka-frezowanie": "Frezowanie detalu głowicą frezarską",
  "ue-fe-ir": "Logotypy: Fundusze Europejskie Program Inteligentny Rozwój, Rzeczpospolita Polska, Unia Europejska Europejski Fundusz Rozwoju Regionalnego",
  "ue-filtral": "Logotypy projektu FILTRAL: NCBR, Fundusze Europejskie, Unia Europejska",
- "ue-parp": "Logotypy projektu PARP: Fundusze Europejskie, Unia Europejska"
+ "ue-parp": "Logotypy projektu PARP: Fundusze Europejskie, Unia Europejska",
+ "filtry-uc-zestaw": "Filtry piankowe CERFERR-UC w kształtach okrągłym, kwadratowym, prostokątnym i nietypowym",
+ "filtry-uc-ksztalty": "Okrągłe, kwadratowe i prostokątne filtry piankowe CERFERR-UC",
+ "filtry-uc-kwadrat-okragle": "Kwadratowy i dwa okrągłe filtry piankowe CERFERR-UC",
+ "filtry-uc-okragle": "Trzy okrągłe filtry piankowe CERFERR-UC o różnych średnicach",
+ "filtry-uc-okragly": "Okrągły filtr piankowy CERFERR-UC widziany z góry"
 }
