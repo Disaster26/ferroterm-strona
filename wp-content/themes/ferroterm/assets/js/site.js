@@ -1,6 +1,7 @@
 (function () {
   'use strict';
   var d = document;
+  function T(t) { return (window.FT_T && window.FT_T[t]) || t; }
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   function $(s, c) { return (c || d).querySelector(s); }
   function $$(s, c) { return [].slice.call((c || d).querySelectorAll(s)); }
@@ -8,12 +9,12 @@
   /* ---------- menu mobilne ---------- */
   var burger = $('.burger'), menu = $('#menu-mob');
   if (burger && menu) {
-    var zamknij = function () { menu.hidden = true; burger.setAttribute('aria-expanded', 'false'); burger.setAttribute('aria-label', 'Otwórz menu'); };
+    var zamknij = function () { menu.hidden = true; burger.setAttribute('aria-expanded', 'false'); burger.setAttribute('aria-label', T('Otwórz menu')); };
     burger.addEventListener('click', function () {
       var otw = menu.hidden;
       menu.hidden = !otw;
       burger.setAttribute('aria-expanded', String(otw));
-      burger.setAttribute('aria-label', otw ? 'Zamknij menu' : 'Otwórz menu');
+      burger.setAttribute('aria-label', otw ? T('Zamknij menu') : T('Otwórz menu'));
     });
     menu.addEventListener('click', function (e) { if (e.target.closest('a')) zamknij(); });
     d.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !menu.hidden) { zamknij(); burger.focus(); } });
@@ -98,11 +99,11 @@
     var ikona = function (dd) { return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + dd + '"/></svg>'; };
     var lb = d.createElement('div');
     lb.className = 'lb'; lb.hidden = true;
-    lb.setAttribute('role', 'dialog'); lb.setAttribute('aria-modal', 'true'); lb.setAttribute('aria-label', 'Powiększone zdjęcie');
+    lb.setAttribute('role', 'dialog'); lb.setAttribute('aria-modal', 'true'); lb.setAttribute('aria-label', T('Powiększone zdjęcie'));
     lb.innerHTML = '<img class="lb-img" alt=""><p class="lb-pod"></p>'
-      + '<button class="lb-b lb-x" type="button" aria-label="Zamknij">' + ikona('M6 6l12 12M18 6L6 18') + '</button>'
-      + '<button class="lb-b lb-l" type="button" aria-label="Poprzednie zdjęcie">' + ikona('M15 6l-6 6 6 6') + '</button>'
-      + '<button class="lb-b lb-p" type="button" aria-label="Następne zdjęcie">' + ikona('M9 6l6 6-6 6') + '</button>';
+      + '<button class="lb-b lb-x" type="button" aria-label="' + T('Zamknij') + '">' + ikona('M6 6l12 12M18 6L6 18') + '</button>'
+      + '<button class="lb-b lb-l" type="button" aria-label="' + T('Poprzednie zdjęcie') + '">' + ikona('M15 6l-6 6 6 6') + '</button>'
+      + '<button class="lb-b lb-p" type="button" aria-label="' + T('Następne zdjęcie') + '">' + ikona('M9 6l6 6-6 6') + '</button>';
     d.body.appendChild(lb);
     var im = $('.lb-img', lb), pod = $('.lb-pod', lb), bl = $('.lb-l', lb), bp = $('.lb-p', lb), bx = $('.lb-x', lb);
     var lista = [], nr = 0, wrot = null;
@@ -244,7 +245,7 @@
     if (!plik || !plikNazwa) return;
     var fl = plik.files;
     if (!fl || !fl.length) { plikNazwa.innerHTML = plikDom; return; }
-    var b = d.createElement('b'); b.textContent = fl.length === 1 ? 'Dodano 1 plik' : 'Dodano pliki: ' + fl.length;
+    var b = d.createElement('b'); b.textContent = fl.length === 1 ? T('Dodano 1 plik') : T('Dodano pliki:') + ' ' + fl.length;
     plikNazwa.textContent = ''; plikNazwa.appendChild(b);
     plikNazwa.appendChild(d.createTextNode([].map.call(fl, function (x) { return x.name; }).join(', ')));
   };
@@ -264,30 +265,30 @@
       e.preventDefault();
       var im = f.elements.imie, tel = f.elements.tel, em = f.elements.email;
       [im, tel, em].forEach(function (el) { el.removeAttribute('aria-invalid'); });
-      if (!im.value.trim()) { im.setAttribute('aria-invalid', 'true'); im.focus(); komunikat('Podaj imię i nazwisko.', true); return; }
+      if (!im.value.trim()) { im.setAttribute('aria-invalid', 'true'); im.focus(); komunikat(T('Podaj imię i nazwisko.'), true); return; }
       var cyfry = tel.value.replace(/\D/g, ''), mailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim());
-      if (em.value.trim() && !mailOk) { em.setAttribute('aria-invalid', 'true'); em.focus(); komunikat('Sprawdź adres e-mail.', true); return; }
-      if (cyfry.length < 9 && !mailOk) { tel.setAttribute('aria-invalid', 'true'); tel.focus(); komunikat('Podaj numer telefonu albo adres e-mail, żebyśmy mogli odpowiedzieć.', true); return; }
-      if (!f.elements.zgoda.checked) { komunikat('Zaznacz zgodę na kontakt w sprawie zapytania.', true); return; }
+      if (em.value.trim() && !mailOk) { em.setAttribute('aria-invalid', 'true'); em.focus(); komunikat(T('Sprawdź adres e-mail.'), true); return; }
+      if (cyfry.length < 9 && !mailOk) { tel.setAttribute('aria-invalid', 'true'); tel.focus(); komunikat(T('Podaj numer telefonu albo adres e-mail, żebyśmy mogli odpowiedzieć.'), true); return; }
+      if (!f.elements.zgoda.checked) { komunikat(T('Zaznacz zgodę na kontakt w sprawie zapytania.'), true); return; }
       var pl = f.elements['pliki[]'];
       if (pl && pl.files) {
-        if (pl.files.length > 3) { komunikat('Można dołączyć najwyżej 3 pliki. Większe paczki prosimy przesłać e-mailem.', true); return; }
-        for (var i = 0; i < pl.files.length; i++) { if (pl.files[i].size > 10 * 1024 * 1024) { komunikat('Plik „' + pl.files[i].name + '” jest większy niż 10 MB. Prosimy przesłać go e-mailem.', true); return; } }
+        if (pl.files.length > 3) { komunikat(T('Można dołączyć najwyżej 3 pliki. Większe paczki prosimy przesłać e-mailem.'), true); return; }
+        for (var i = 0; i < pl.files.length; i++) { if (pl.files[i].size > 10 * 1024 * 1024) { komunikat(T('Plik') + ' „' + pl.files[i].name + '” ' + T('jest większy niż 10 MB. Prosimy przesłać go e-mailem.'), true); return; } }
       }
       var btn = $('button[type=submit]', f);
-      btn.disabled = true; komunikat('Wysyłanie…', false);
+      btn.disabled = true; komunikat(T('Wysyłanie…'), false);
       (bilet ? Promise.resolve() : pobierzBilet()).then(function () {
         var czekaj = Math.max(0, 4600 - (Date.now() - biletT));
         return new Promise(function (ok) { setTimeout(ok, czekaj); });
       }).then(function () {
         var dane = new FormData(f); dane.append('tk', bilet);
         return fetch(f.dataset.endpoint, { method: 'POST', body: dane, credentials: 'same-origin' });
-      }).then(function (r) { return r.json().catch(function () { return { ok: false, msg: 'Nie udało się wysłać. Prosimy o telefon albo e-mail.' }; }); })
+      }).then(function (r) { return r.json().catch(function () { return { ok: false, msg: T('Nie udało się wysłać. Prosimy o telefon albo e-mail.') }; }); })
         .then(function (j) {
           btn.disabled = false;
-          komunikat(j.msg || (j.ok ? 'Dziękujemy.' : 'Nie udało się wysłać.'), !j.ok);
+          komunikat(j.msg || (j.ok ? T('Dziękujemy.') : T('Nie udało się wysłać.')), !j.ok);
           if (j.ok) { f.reset(); pokazPliki(); bilet = ''; pobierzBilet(); if (window.gtag) window.gtag('event', 'generate_lead', { form: 'zapytanie' }); }
-        }).catch(function () { btn.disabled = false; komunikat('Brak połączenia. Spróbuj ponownie albo zadzwoń.', true); });
+        }).catch(function () { btn.disabled = false; komunikat(T('Brak połączenia. Spróbuj ponownie albo zadzwoń.'), true); });
     });
   }
 })();
